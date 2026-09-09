@@ -1,4 +1,5 @@
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
+import { getCurrentUser } from '@/lib/auth';
 import EditProductForm from './edit-product-form';
 
 type Product = {
@@ -7,6 +8,7 @@ type Product = {
   description: string | null;
   price: number;
   createdAt: string;
+  owner: { id: string; name: string; email: string } | null;
 };
 
 async function getProduct(id: string): Promise<Product | null> {
@@ -24,10 +26,18 @@ export default async function EditProductPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const product = await getProduct(id);
+  const [product, user] = await Promise.all([
+    getProduct(id),
+    getCurrentUser(),
+  ]);
 
   if (!product) {
     notFound();
+  }
+
+  const canEdit = !!user && (!product.owner || product.owner.id === user.id);
+  if (!canEdit) {
+    redirect('/products');
   }
 
   return (

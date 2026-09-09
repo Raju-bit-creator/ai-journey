@@ -13,17 +13,35 @@ type Product = {
   owner: { id: string; name: string; email: string } | null;
 };
 
-async function getProducts(): Promise<Product[]> {
-  const res = await fetch(`${process.env.BACKEND_URL}/products`, {
-    cache: 'no-store',
-  });
-  if (!res.ok) return [];
+type PaginatedProducts = {
+  items: Product[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+};
+
+async function getProducts(page: number): Promise<PaginatedProducts> {
+  const res = await fetch(
+    `${process.env.BACKEND_URL}/products?page=${page}&limit=10`,
+    { cache: 'no-store' },
+  );
+  if (!res.ok) {
+    return { items: [], total: 0, page: 1, limit: 10, totalPages: 1 };
+  }
   return res.json();
 }
 
-export default async function ProductsPage() {
-  const [products, user] = await Promise.all([
-    getProducts(),
+export default async function ProductsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
+  const { page: pageParam } = await searchParams;
+  const page = Math.max(1, Number(pageParam) || 1);
+
+  const [{ items: products, totalPages }, user] = await Promise.all([
+    getProducts(page),
     getCurrentUser(),
   ]);
 
@@ -92,45 +110,82 @@ export default async function ProductsPage() {
               No products yet.
             </p>
           )}
-          {products.map((product) => (
-            <li
-              key={product.id}
-              className="flex items-center justify-between gap-4 rounded-xl border border-black/[.08] px-5 py-4 dark:border-white/[.145]"
-            >
-              <div className="flex flex-col gap-1">
-                <span className="font-semibold">{product.name}</span>
-                {product.description && (
-                  <span className="text-sm text-zinc-500 dark:text-zinc-400">
-                    {product.description}
+          {products.map((product) => {
+            const canManage =
+              !!user && (!product.owner || product.owner.id === user.id);
+
+            return (
+              <li
+                key={product.id}
+                className="flex items-center justify-between gap-4 rounded-xl border border-black/[.08] px-5 py-4 dark:border-white/[.145]"
+              >
+                <div className="flex flex-col gap-1">
+                  <span className="font-semibold">{product.name}</span>
+                  {product.description && (
+                    <span className="text-sm text-zinc-500 dark:text-zinc-400">
+                      {product.description}
+                    </span>
+                  )}
+                  <span className="text-xs text-zinc-400 dark:text-zinc-500">
+                    {product.owner ? `by ${product.owner.name}` : 'unowned'}
                   </span>
-                )}
-                <span className="text-xs text-zinc-400 dark:text-zinc-500">
-                  {product.owner ? `by ${product.owner.name}` : 'unowned'}
-                </span>
-              </div>
-              <div className="flex shrink-0 items-center gap-4">
-                <span className="font-mono text-sm">
-                  ${product.price.toFixed(2)}
-                </span>
-                <Link
-                  href={`/products/${product.id}/edit`}
-                  className="text-sm font-medium text-zinc-600 hover:underline dark:text-zinc-400"
-                >
-                  Edit
-                </Link>
-                <form action={deleteProduct}>
-                  <input type="hidden" name="id" value={product.id} />
-                  <button
-                    type="submit"
-                    className="text-sm font-medium text-red-600 hover:underline dark:text-red-400"
-                  >
-                    Delete
-                  </button>
-                </form>
-              </div>
-            </li>
-          ))}
+                </div>
+                <div className="flex shrink-0 items-center gap-4">
+                  <span className="font-mono text-sm">
+                    ${product.price.toFixed(2)}
+                  </span>
+                  {canManage && (
+                    <>
+                      <Link
+                        href={`/products/${product.id}/edit`}
+                        className="text-sm font-medium text-zinc-600 hover:underline dark:text-zinc-400"
+                      >
+                        Edit
+                      </Link>
+                      <form action={deleteProduct}>
+                        <input type="hidden" name="id" value={product.id} />
+                        <button
+                          type="submit"
+                          className="text-sm font-medium text-red-600 hover:underline dark:text-red-400"
+                        >
+                          Delete
+                        </button>
+                      </form>
+                    </>
+                  )}
+                </div>
+              </li>
+            );
+          })}
         </ol>
+
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between text-sm">
+            {page > 1 ? (
+              <Link
+                href={`/products?page=${page - 1}`}
+                className="font-medium text-zinc-950 hover:underline dark:text-zinc-50"
+              >
+                ← Previous
+              </Link>
+            ) : (
+              <span />
+            )}
+            <span className="text-zinc-500 dark:text-zinc-400">
+              Page {page} of {totalPages}
+            </span>
+            {page < totalPages ? (
+              <Link
+                href={`/products?page=${page + 1}`}
+                className="font-medium text-zinc-950 hover:underline dark:text-zinc-50"
+              >
+                Next →
+              </Link>
+            ) : (
+              <span />
+            )}
+          </div>
+        )}
       </main>
     </div>
   );

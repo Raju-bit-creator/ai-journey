@@ -13,17 +13,17 @@ const stages: Stage[] = [
   {
     title: "Backend",
     items: ["NestJS", "PostgreSQL", "Redis"],
-    status: "current",
+    status: "done",
   },
   {
     title: "Python",
     items: ["FastAPI", "ML"],
-    status: "next",
+    status: "current",
   },
   {
     title: "LLM Engineering",
     items: ["RAG", "Agents", "MCP"],
-    status: "upcoming",
+    status: "next",
   },
   {
     title: "Production AI",
@@ -50,13 +50,12 @@ export default function Home() {
             Full-Stack AI Developer Roadmap
           </span>
           <h1 className="text-3xl font-semibold tracking-tight text-black sm:text-4xl dark:text-zinc-50">
-            You are here: Backend
+            You are here: Python
           </h1>
           <p className="max-w-xl text-base leading-7 text-zinc-600 dark:text-zinc-400">
-            Frontend is done. Next up is the backend stack — NestJS,
-            PostgreSQL, and Redis — before moving on to Python and the AI
-            stages that build toward a production system you deploy and
-            evaluate.
+            Frontend and Backend are done. Next up is FastAPI and ML —
+            before moving on to LLM Engineering and the AI stages that build
+            toward a production system you deploy and evaluate.
           </p>
         </div>
 

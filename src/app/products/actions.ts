@@ -66,9 +66,14 @@ export async function updateProduct(
     return { error: 'Price must be a non-negative number.' };
   }
 
+  const sessionHeader = await getSessionHeader();
+  if (!sessionHeader['x-session-id']) {
+    return { error: 'You must be logged in to edit a product.' };
+  }
+
   const res = await fetch(`${process.env.BACKEND_URL}/products/${id}`, {
     method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...sessionHeader },
     body: JSON.stringify({
       name,
       description: description || undefined,
@@ -76,6 +81,9 @@ export async function updateProduct(
     }),
   });
 
+  if (res.status === 403) {
+    return { error: 'You can only edit products you created.' };
+  }
   if (!res.ok) {
     return { error: 'Failed to update product.' };
   }
@@ -88,8 +96,12 @@ export async function deleteProduct(formData: FormData): Promise<void> {
   const id = formData.get('id');
   if (typeof id !== 'string') return;
 
+  const sessionHeader = await getSessionHeader();
+  if (!sessionHeader['x-session-id']) return;
+
   await fetch(`${process.env.BACKEND_URL}/products/${id}`, {
     method: 'DELETE',
+    headers: sessionHeader,
   });
 
   revalidatePath('/products');
