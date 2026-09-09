@@ -2,8 +2,11 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
+  ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { User } from '../users/user.entity.js';
 
 @Entity()
 export class Product {
@@ -29,4 +32,8 @@ export class Product {
 
   @CreateDateColumn()
   createdAt: Date;
+
+  @ManyToOne(() => User, { eager: true, nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'ownerId' })
+  owner: User | null;
 }
