@@ -18,17 +18,17 @@ const stages: Stage[] = [
   {
     title: "Python",
     items: ["FastAPI", "ML"],
-    status: "current",
+    status: "done",
   },
   {
     title: "LLM Engineering",
     items: ["RAG", "Agents", "MCP"],
-    status: "next",
+    status: "done",
   },
   {
     title: "Production AI",
     items: ["Docker", "AWS", "Evaluation"],
-    status: "upcoming",
+    status: "current",
   },
 ];
 
@@ -50,12 +50,13 @@ export default function Home() {
             Full-Stack AI Developer Roadmap
           </span>
           <h1 className="text-3xl font-semibold tracking-tight text-black sm:text-4xl dark:text-zinc-50">
-            You are here: Python
+            You are here: Production AI
           </h1>
           <p className="max-w-xl text-base leading-7 text-zinc-600 dark:text-zinc-400">
-            Frontend and Backend are done. Next up is FastAPI and ML —
-            before moving on to LLM Engineering and the AI stages that build
-            toward a production system you deploy and evaluate.
+            Frontend, Backend, Python, and LLM Engineering are done. The
+            final stage: Docker, AWS, and Evaluation — taking what&apos;s
+            been built and actually deploying and evaluating it as a real
+            system.
           </p>
         </div>
 

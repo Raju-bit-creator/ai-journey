@@ -1,0 +1,8 @@
+venv
+__pycache__
+*.pyc
+.pytest_cache
+.env
+model
+.git
+iris_scatter.png

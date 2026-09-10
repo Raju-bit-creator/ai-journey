@@ -1,36 +1,36 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ai-journey
 
-## Getting Started
+A personal full-stack AI developer roadmap, tracked in the homepage of this app. Each stage lives in its own folder:
 
-First, run the development server:
+- **`src/`** — Next.js frontend (App Router, React 19, TypeScript). Also the visual progress tracker.
+- **`backend/`** — NestJS API: auth (Redis sessions), products (Postgres via TypeORM, ownership, pagination, Redis caching), Swagger docs at `/docs`.
+- **`python/`** — standalone FastAPI service serving a scikit-learn classifier.
+- **`llm/`** — standalone TypeScript project: RAG, an agent, and an MCP server, all answering questions about / acting on this actual codebase.
+
+## Running it — two ways
+
+### Local dev (what you'd use day to day)
+
+Each service runs on the host with hot reload; only Postgres/Redis run in Docker.
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+cd backend && docker compose up -d && npm run start:dev   # NestJS on :3001
+npm run dev                                                 # Next.js on :3000 (from repo root)
+cd python && source venv/bin/activate && uvicorn app.main:app --reload --port 8000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Full Docker (the whole stack containerized)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Everything — frontend, backend, Python service, Postgres, Redis — runs in containers, networked together. No local Node/Python setup needed beyond Docker itself.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+docker compose up -d --build
+```
 
-## Learn More
+- Frontend: http://localhost:3000
+- Backend: http://localhost:3001 (docs at `/docs`)
+- Python service: http://localhost:8000
 
-To learn more about Next.js, take a look at the following resources:
+**Don't run both at once** — they'd fight over the same host ports (3000/3001/8000/5433/6380). Stop one (`docker compose down`, in the relevant directory) before starting the other.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+**Known simplification:** there's no migration system yet, so the backend auto-syncs its database schema from TypeORM entities on every startup (`DB_SYNCHRONIZE`, defaults on) — including in the containerized "production" build. That's fine for a solo learning project; a real production deployment should replace this with actual migrations before it ever touches a database with data worth keeping.

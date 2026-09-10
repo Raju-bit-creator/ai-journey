@@ -12,8 +12,11 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
-    // backend/ is a separate NestJS project with its own toolchain.
+    // These are separate projects with their own toolchains (and, for
+    // python/, a venv full of vendored JS this linter shouldn't touch).
     "backend/**",
+    "python/**",
+    "llm/**",
   ]),
 ]);
 

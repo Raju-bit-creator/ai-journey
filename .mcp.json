@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "ai-journey-products": {
+      "type": "stdio",
+      "command": "npm",
+      "args": [
+        "run",
+        "mcp",
+        "--prefix",
+        "/Users/raju/Projects/ai-journey/llm"
+      ],
+      "env": {}
+    }
+  }
+}

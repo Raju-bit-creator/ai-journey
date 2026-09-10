@@ -10,7 +10,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
         type: 'postgres',
         url: config.get<string>('DATABASE_URL'),
         autoLoadEntities: true,
-        synchronize: config.get<string>('NODE_ENV') !== 'production',
+        // No migration system exists yet, so schema sync stays on by
+        // default even in production containers. Set DB_SYNCHRONIZE=false
+        // once real migrations replace this.
+        synchronize: config.get<string>('DB_SYNCHRONIZE') !== 'false',
       }),
     }),
   ],

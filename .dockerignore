@@ -1,0 +1,12 @@
+node_modules
+.next
+.env*
+!.env.example
+.git
+*.tsbuildinfo
+next-env.d.ts
+
+# other stages' folders aren't needed for the frontend image
+backend
+python
+llm
